@@ -521,11 +521,12 @@ function draw() {
         let offset = (sin(t - Math.PI*.5) + 1) / 2 * amplitude;
         t += speed
         translate(-offset, 0);
+        portrait_running = checkForPortrait()
         if (t >= (Math.PI*2)) { portrait_running = false}
     }
 
     not_allow_action = portrait_running
-    background(245,168,0);
+    //background(245,168,0);
 
     achtergrond.draw()
 
