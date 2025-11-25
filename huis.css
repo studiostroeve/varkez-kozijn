@@ -1,8 +1,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  width: auto;
-  height: auto;
+  min-height: 100vh;
   overscroll-behavior: none;
   user-select: none;
 }
@@ -10,4 +9,13 @@ html, body {
 canvas {
   display: block;
   user-select: none;
+  height: 100vh;
+  aspect-ratio: 16/9;
+}
+
+.loading {
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  transform: translate(-50% -50%);
 }

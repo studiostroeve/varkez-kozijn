@@ -15,7 +15,7 @@ let puzzel_table = [];
 let boek;
 let knop;
 let last_touch = null;
-let not_allow_action = false;
+//let not_allow_action = false;
 let portrait_anim_pad = 400
 
 // Laat hele scherm zien voor portret modus //
@@ -36,11 +36,11 @@ let drag_offset_y = 0;
 
 function checkForPortrait() {
     let aspect_ratio = windowWidth / windowHeight
-    return aspect_ratio < 1.5
+    return aspect_ratio < 0.825;
 }
 
 function setScaling() {
-    scaleFactor = max(windowWidth/BASE_WIDTH, windowHeight/BASE_HEIGHT);
+    scaleFactor = max(windowWidth/BASE_WIDTH, windowHeight/BASE_HEIGHT);// / pixelDensity();
 }
 
 function getScaledMouse() {
@@ -64,21 +64,32 @@ function getScaledTouches() {
 function tryMakeVisiblePuzzel(pzl) {
     for (let aPzl of puzzel_table) {
         if (aPzl.visible) {
-            if (aPzl.completed) {
+            aPzl.visible = false;
+            /*if (aPzl.completed) {
                 aPzl.visible = false;
             } else {
                 return;
-            }
+            }*/
         }
     }
     pzl.visible = true;
+    knop.box.active = true;
+    knop.visible = true;
+}
+
+function hideAllPuzzles() {
+    for (let pzl of puzzel_table) {
+        pzl.visible = false;
+    }
+    knop.visible = false;
 }
 
 function createHitBoxes() {
+    // KAST HITBOXES
     hitboxes =  {
-        hitbox_1: new Hitbox(726, 124, 160, 86, null, kast, true, (o) => o.setState("lade_1"), (o) => o.setState("lade_0"), () => downloadPDF("assets/downloads/Kleurplaat 1.pdf", "Tekening 1")),
-        hitbox_2: new Hitbox(726, 216, 156, 86, null, kast, true, (o) => o.setState("lade_2"), (o) => o.setState("lade_0")),
-        hitbox_3: new Hitbox(726, 308, 153, 86, null, kast, true, (o) => o.setState("lade_3"), (o) => o.setState("lade_0")),
+        hitbox_1: new Hitbox(726, 124, 160, 86, null, kast, true, (o) => o.setState("lade_1"), (o) => o.setState("lade_0"), () => downloadPDF("assets/downloads/Kleurplaat 1.pdf", "Tekening 1"), () => menu1.SetActive(true), () => menu1.SetActive(false)),
+        hitbox_2: new Hitbox(726, 216, 156, 86, null, kast, true, (o) => o.setState("lade_2"), (o) => o.setState("lade_0"), () => downloadPDF("assets/downloads/Knutsel 1.pdf", "Knutsel 1"),  () => menu2.SetActive(true), () => menu2.SetActive(false)),
+        hitbox_3: new Hitbox(726, 308, 153, 86, null, kast, true, (o) => o.setState("lade_3"), (o) => o.setState("lade_0"), () => downloadPDF("assets/downloads/Knutsel 2.pdf", "Knutsel 2"),  () => menu3.SetActive(true), () => menu3.SetActive(false)),
         hitbox_4: new Hitbox(726, 400, 150, 86, null, kast, true, (o) => o.setState("lade_4"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel4)),
         hitbox_5: new Hitbox(721, 510, 220, 64, null, kast, true, (o) => o.setState("lade_5"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel3)),
         hitbox_6: new Hitbox(721, 580, 220, 64, null, kast, true, (o) => o.setState("lade_6"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel)),
@@ -150,7 +161,7 @@ function createHitBoxes() {
         box_13: new Hitbox(1523, 978, 150, 100, {id: 13}, null, true),
     };
 
-    knop.box = new Hitbox(knop.x-10, knop.y, knop.w+20, knop.h, null, null, false, null, null, () => setChaos(false))
+    knop.box = new Hitbox(knop.x-10, knop.y, knop.w+20, knop.h, null, null, false, null, null, () => setChaos(false), null, null, () => hideAllPuzzles());
 
 };
 
@@ -303,6 +314,10 @@ function setChaos(wants_chaos) {
 }
 
 function preload() {
+    //fonts
+    comic_font = loadFont('assets/fonts/ComicNeue-Bold.ttf')
+
+
     varkez_img = loadImage('assets/images/varkez.png')
     kozijn_img = loadImage('assets/images/kozijn.png')
 
@@ -432,6 +447,14 @@ function preload() {
 
     wolk_1_img = loadImage('assets/images/wolken/1.png')
     wolk_2_img= loadImage('assets/images/wolken/2.png')
+
+    boek_menu_img = loadImage('assets/images/boek/menu.png')
+
+    kleur_menu_img = loadImage('assets/images/wolken/kleur.png')
+    knutsel1_menu_img = loadImage('assets/images/wolken/knutsel1.png')
+    knutsel2_menu_img = loadImage('assets/images/wolken/knutsel2.png')
+
+    rotate_screen_img = loadImage('assets/images/telefoon_draai.png')
 }
 
 function setup() {
@@ -439,8 +462,8 @@ function setup() {
     //canvas.style("touch-action", "none");
 
     setScaling();
+    scale(scaleFactor);
     resizeCanvas(BASE_WIDTH * scaleFactor, BASE_HEIGHT*scaleFactor)
-
     achtergrond = new Layer(hut_img, true)
 
     sokken = new Layer(sokken_img, false)
@@ -479,9 +502,15 @@ function setup() {
 
     boek = new Boek(1185, 462, boek_img, {x: .45, y: .45});
 
-    buy_menu = new BuyMenu(1200, 300, 300, 200, "Bestel het boek door te mailen naar info@mariboer.nl");
+    buy_menu = new BuyMenu(1920/2-300, 1080/2-400, 600, 800, boek_menu_img);
     //opruim_text = new ColoredText(1041, 518, 143, 158, "Klik hier om op te ruimen", 20, (0,0,0), false)
     knop = new OpruimKnop(200, 220, knop_a_img, knop_u_img, {x: .5, y: .5}, false, 1, false)
+
+    menu1 = new SimpleMenu(570, 90, 201, 136, "Klik om de kleurplaat te downloaden!", kleur_menu_img);
+    menu2 = new SimpleMenu(786, 190, 201, 136, "Klik om knutselpagina 1 te downloaden!", knutsel1_menu_img);
+    menu3 = new SimpleMenu(570, 370, 201, 136, "Klik om knutselpagina 2 te downloaden!", knutsel2_menu_img);
+
+
 
     createKleding();
 
@@ -495,6 +524,7 @@ function setup() {
     puzzel3.apply_transform();
     puzzel4.apply_transform();
 
+    rotate_screen = new RotateScreen();
 
     wolken = new AnimLayer([wolk_1_img, wolk_2_img], 120, 440, false, {x: .84, y: .84}, 20, 90, color(205, 255, 205, 205))
 
@@ -502,7 +532,7 @@ function setup() {
 
     //createClouds();
 
-    portrait_running = checkForPortrait()
+    portrait_running = checkForPortrait();
 }
 
 function windowResized() {
@@ -510,22 +540,36 @@ function windowResized() {
     resizeCanvas(BASE_WIDTH * scaleFactor, BASE_HEIGHT*scaleFactor)
 }
 
+let drewThisPortrait = false;
+let portraitTimer = 0;
 
 function draw() {
     // Schalen per apparaat
-    push();
-    scale(scaleFactor);
-    if (portrait_running) {
-        speed = (windowWidth / windowHeight)/20
-        amplitude = BASE_WIDTH - windowWidth / scaleFactor;
-        let offset = (sin(t - Math.PI*.5) + 1) / 2 * amplitude;
-        t += speed
-        translate(-offset, 0);
-        portrait_running = checkForPortrait()
-        if (t >= (Math.PI*2)) { portrait_running = false}
+    setScaling();
+    resizeCanvas(BASE_WIDTH * scaleFactor, BASE_HEIGHT*scaleFactor);
+    if (checkForPortrait()) {
+        pixelDensity(1/scaleFactor);
+    } else {
+        pixelDensity(1);
     }
+    push();
+    if (showDebug) {
+        console.log(scaleFactor);
+    }
+    scale(scaleFactor);
+    console.log(scaleFactor)
+    
+    //if (portrait_running) {
+    //    speed = (windowWidth / windowHeight)/20
+    //    amplitude = BASE_WIDTH - windowWidth / scaleFactor;
+    //    let offset = (sin(t - Math.PI*.5) + 1) / 2 * amplitude;
+    //    t += speed
+    //    translate(-offset, 0);
+    //    portrait_running = checkForPortrait()
+    //    if (t >= (Math.PI*2)) { portrait_running = false}
+    //}
 
-    not_allow_action = portrait_running
+    //not_allow_action = portrait_running
     //background(245,168,0);
 
     achtergrond.draw()
@@ -558,18 +602,50 @@ function draw() {
     kleding.sort((a, b) => a.y - b.y);
 
     const worn = kleding.filter(k => k.wearer != null).reverse(); // reverse order
-    const notWorn = kleding.filter(k => k.wearer == null);
 
-    const drawOrder = [...worn, ...notWorn];
+    const notWorn = kleding.filter(k => k.wearer == null);
+    const notWornDragged = notWorn.filter(k => k.dragged == true)
+    const notWornNotDragged = notWorn.filter(k => k.dragged == false)
+
+    const drawOrder = [...worn, ...notWornNotDragged, ...notWornDragged];
 
     for (let k of drawOrder) {
         k.draw()
     }
    
-    buy_menu.draw();
 
     wolken.draw()
-    
+
+    menu1.draw();
+    menu2.draw();
+    menu3.draw();
+
+    buy_menu.draw();
+
+    portrait_running = checkForPortrait();
+
+    //console.log(windowWidth/windowHeight);
+
+    if (portrait_running && (portraitTimer < 20) && !drewThisPortrait) {
+        setScaling();
+        //resizeCanvas(BASE_WIDTH * scaleFactor, BASE_HEIGHT*scaleFactor);
+    }
+
+    if (portrait_running && (portraitTimer < 120) && !drewThisPortrait) {
+        portraitTimer++;
+        rotate_screen.draw();
+    }
+
+    if (portraitTimer >= 120) {
+        drewThisPortrait = true;
+    }
+
+    if (!portrait_running) {
+        portraitTimer = 0;
+        drewThisPortrait = false;
+    }
+
+
     // === DEBUG === //
     if (showDebug) {
         if (puzzel.visible) {
@@ -595,6 +671,14 @@ function draw() {
 }
 
 function checkInteract(p) {
+
+    if (buy_menu.active) {
+        if (buy_menu.isClicked(p.x, p.y)) {
+            buy_menu.active = false;
+            return;
+        }
+    }
+
     for (let i = kleding.length - 1; i >= 0; i--) {
         let k = kleding[i];
         if (!k.visible) { continue }
@@ -700,7 +784,6 @@ function checkIndirectInteract(p) {
 
         kledingStukDragged.x = p.x - drag_offset_x;
         kledingStukDragged.y = p.y - drag_offset_y;
-        return true
     }
     if (charDragged) {
         canvas.elt.style.touchAction = "none";
@@ -830,7 +913,7 @@ function checkRelease(p) {
 // MOBILE FUNCTIONALITY
 
 function touchStarted() {
-    if (not_allow_action) { return }
+    //if (not_allow_action) { return }
     let t0 = getScaledTouches()[0];
     if (t0) last_touch = t0;
     //start_touch = createVector(t0.x, t0.y);
@@ -861,7 +944,7 @@ function touchMoved() {
 */
 
 function touchEnded() {
-    if (not_allow_action) { return }
+    //if (not_allow_action) { return }
     //start_touch = null
     if (!last_touch) {
         if (kledingStukDragged) last_touch = { x: kledingStukDragged.x, y: kledingStukDragged.y };
@@ -875,7 +958,7 @@ function touchEnded() {
 // END OF MOBILE FUNCTIONALITY
 
 function mousePressed() {
-    if (not_allow_action) { return }
+    //if (not_allow_action) { return }
     if (mouseButton !== "left") { return }
     let m = getScaledMouse();
 
@@ -887,7 +970,7 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-    if (not_allow_action) { return }
+    //if (not_allow_action) { return }
     let m = getScaledMouse();
     let t0 = getScaledTouches()[0];
     if (t0) last_touch = t0;
@@ -895,13 +978,13 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
-    if (not_allow_action) { return }
+    //if (not_allow_action) { return }
     let m = getScaledMouse();
     checkRelease(m)
 }
 
 function mouseMoved() {
-    if (not_allow_action) { return }
+    //if (not_allow_action) { return }
     let m = getScaledMouse();
 
     checkIndirectInteract(m);
@@ -976,6 +1059,98 @@ class AnimLayer {
 }
 
 class BuyMenu {
+    constructor(x, y, w, h, img) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.img = img;
+        this.active = false;
+    }
+
+    draw() {
+        if (!this.active) { return }
+        if (this.img) {
+            image(this.img, this.x, this.y, this.w, this.h)
+        } else {
+            strokeWeight(5)
+            stroke(255)
+            fill(255, 235)
+            rectMode(CORNER)
+            rect(this.x, this.y, this.w, this.h)
+             strokeWeight(0)
+        textFont(comic_font)
+        textAlign(CENTER, CENTER);
+        rectMode(CENTER)
+        textWrap(WORD);
+
+        // TEKST
+        fill('red')
+        textSize(28)
+        text("De Avonturen van Varkez en Kozijn", this.x+this.w/2, this.y+20, this.w-20);
+
+        fill('black')
+        textSize(20)
+        text("door Mari Boer", this.x+this.w/2, this.y+50, this.w-20);
+        
+        textAlign(LEFT, CENTER);
+        fill('red')
+        textSize(18)
+        text("Het boek bevat:", this.x+this.w/2, this.y+94, this.w-20);
+
+        fill(0,112,192)
+        text("- 64 bladzijden beeldverhaal (stripverhaal)", this.x+this.w/2, this.y+114, this.w-20);
+        text("- 1 ganzenbord", this.x+this.w/2, this.y+134, this.w-20);
+        text("- 2 zoekpagina's", this.x+this.w/2, this.y+154, this.w-20);
+        text("- 2 pagina's met schetsen", this.x+this.w/2, this.y+174, this.w-20);
+        text("- 2 knutselpagina's (los toegevoegd)", this.x+this.w/2, this.y+194, this.w-20);
+        text("- 1 kleurplaat (los toegevoegd)", this.x+this.w/2, this.y+214, this.w-20);
+
+
+        fill('red')
+        text("Bestellen:", this.x+this.w/2, this.y+254, this.w-20);
+
+        fill('black')
+        text("Het boek kost 22,50 euro plus verzendkosten.", this.x+this.w/2, this.y+274, this.w-20);
+        text("(binnen Zwolle geen verzendkosten).", this.x+this.w/2, this.y+294, this.w-20);
+        text("Te bestellen door je naam en adres te mailen naar: info@mariboer.nl.", this.x+this.w/2, this.y+314, this.w-20);
+
+        fill('red')
+        text("Het verhaal:", this.x+this.w/2, this.y+354, this.w-20);
+
+        fill('black')
+        text("- Varkez en kozijn komen elkaar bij toeval tegen.", this.x+this.w/2, this.y+374, this.w-20);
+        text("  De pyjama van Varkez wordt aangezien voor een boevenpak.", this.x+this.w/2, this.y+394, this.w-20);
+        text("  Varkez wil zijn onschuld bewijzen en hij wil kozijn helpen.", this.x+this.w/2, this.y+414, this.w-20);
+        text("- Tijdens hun avonturen mislukt vrijwel alles, maar komt toch alles goed.", this.x+this.w/2, this.y+434, this.w-20);
+        text("- over vriendschap en 'sorry' zeggen.", this.x+this.w/2, this.y+454, this.w-20);
+       
+        fill('red')
+        text("Hoofpersonages:", this.x+this.w/2, this.y+494, this.w-20);
+
+        fill('black')
+        text("Varkez heeft een klein hartje, een tankstation en weinig inkomsten. ", this.x+this.w/2, this.y+514, this.w-20);
+        text("Kozijn is een uit de gevangenis ontsnapte kruimeldief en", this.x+this.w/2, this.y+534, this.w-20);
+        text("een beetje een opschepper.", this.x+this.w/2, this.y+554, this.w-20);
+        
+        textAlign(CENTER, CENTER);
+        fill('grey')
+        text("(Klik om te sluiten.)", this.x+this.w/2, this.y+this.h-40, this.w-20);
+        }
+    }
+
+    isClicked(mx, my) {
+        if (!this.active) { return }
+        if (mx >= this.x && mx <= this.x + this.w &&
+            my >= this.y && my <= this.y + this.h) {
+            return true
+        } else {
+            return false
+        }
+    }
+}
+
+class SimpleMenu {
     constructor(x, y, w, h, text, img) {
         this.x = x;
         this.y = y;
@@ -996,17 +1171,60 @@ class BuyMenu {
             fill('white')
             ellipseMode(CORNER);
             ellipse(this.x, this.y, this.w, this.h)
+             fill('black')
+            stroke('white')
+            strokeWeight(8)
+            textSize(18)
+            textFont(comic_font)
+            textAlign(CENTER, CENTER);
+            rectMode(CENTER)
+            textWrap(WORD);
+            text(this.text, this.x+this.w/2, this.y+this.h/2, this.w-50);
+            strokeWeight(0);
+            noStroke();
         }
-        fill('black')
-        textSize(18)
+       
+    }
+
+    SetActive(value) {
+        this.active = value;
+    } 
+}
+
+class RotateScreen {
+    constructor() {
+        this.x = 0;
+        this.y = 0;
+        this.w = 400;
+        this.h = 400;
+        this.text = "Draai het scherm";
+        this.active = true;
+        this.duration = 2;
+    }
+
+    draw() {
+        if (!this.active) { return }
+
+        this.x = windowWidth/2 - this.w/2;
+        this.y = windowHeight/2 - this.h/2;
+
+        noStroke();
+        fill(0, 155)
+        rect(this.x, this.y, this.w, this.h, 16);
+
+        image(rotate_screen_img, this.x + 40, this.y + 16, 320, 320)
+
+        fill('white')
+        textSize(46)
         strokeWeight(0)
         textAlign(CENTER, CENTER);
         rectMode(CENTER)
         textWrap(WORD);
-        text(this.text, this.x+this.w/2, this.y+this.h/2, this.w-20);
+        text(this.text, this.x+this.w/2, this.y+this.h-30);
 
     }
 }
+
 class ColoredText {
     constructor(x, y, w, h, text, text_size = 20, color = (0,255,0), active = true) {
         this.x = x;
@@ -1349,7 +1567,7 @@ class PuzzelStuk {
 }
 
 class Hitbox {
-  constructor(x, y, w, h, metadata, target, active, hover_action, reset_action, click_action) {
+  constructor(x, y, w, h, metadata, target, active, hover_action, reset_action, click_action, second_hover_action, second_reset_action, second_click_action) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -1360,6 +1578,9 @@ class Hitbox {
     this.reset_action = reset_action;
     this.click_action = click_action;
     this.meta = metadata;
+    this.second_hover_action = second_hover_action;
+    this.second_reset_action = second_reset_action;
+    this.second_click_action = second_click_action;
   }
 
     draw() {
@@ -1368,7 +1589,7 @@ class Hitbox {
         if (this.active) {
             stroke(105,185,0);
         } else {
-            stroke(255,0,0);
+            stroke(2553,0,0);
         }
 
         rect(this.x, this.y, this.w, this.h);
@@ -1396,17 +1617,29 @@ class Hitbox {
     }
 
     click() {
-    if (!this.click_action) { return }
-       this.click_action(this.target); 
+        if (this.click_action) {
+            this.click_action(this.target); 
+        }
+        if (this.second_click_action) {
+            this.second_click_action()
+        }
     }
 
     activate() {
-        if (!this.hover_action) { return }
-        this.hover_action(this.target);
+        if (this.hover_action) {
+            this.hover_action(this.target);
+        }
+        if (this.second_hover_action) {
+            this.second_hover_action()
+        }
     }
 
     reset() {
-        if (!this.reset_action) { return }
-        this.reset_action(this.target);
+        if (this.reset_action) {
+            this.reset_action(this.target);
+        }
+        if (this.second_reset_action) {
+            this.second_reset_action()
+        }
     } 
 }
