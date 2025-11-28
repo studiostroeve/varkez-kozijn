@@ -14,8 +14,9 @@ let puzzel4;
 let puzzel_table = [];
 let boek;
 let knop;
+let buy_menu;
+let confetti = [];
 let last_touch = null;
-//let not_allow_action = false;
 let portrait_anim_pad = 400
 
 // Laat hele scherm zien voor portret modus //
@@ -40,6 +41,12 @@ function checkForPortrait() {
 }
 
 function setScaling() {
+//    console.log(windowHeight)
+  //  if (windowWidth < windowHeight) {
+    //    scaleFactor = windowHeight/BASE_HEIGHT;
+    //} else {
+    //    scaleFactor = 1;
+    //}
     scaleFactor = max(windowWidth/BASE_WIDTH, windowHeight/BASE_HEIGHT);// / pixelDensity();
 }
 
@@ -65,11 +72,6 @@ function tryMakeVisiblePuzzel(pzl) {
     for (let aPzl of puzzel_table) {
         if (aPzl.visible) {
             aPzl.visible = false;
-            /*if (aPzl.completed) {
-                aPzl.visible = false;
-            } else {
-                return;
-            }*/
         }
     }
     pzl.visible = true;
@@ -90,11 +92,11 @@ function createHitBoxes() {
         hitbox_1: new Hitbox(726, 124, 160, 86, null, kast, true, (o) => o.setState("lade_1"), (o) => o.setState("lade_0"), () => downloadPDF("assets/downloads/Kleurplaat 1.pdf", "Tekening 1"), () => menu1.SetActive(true), () => menu1.SetActive(false)),
         hitbox_2: new Hitbox(726, 216, 156, 86, null, kast, true, (o) => o.setState("lade_2"), (o) => o.setState("lade_0"), () => downloadPDF("assets/downloads/Knutsel 1.pdf", "Knutsel 1"),  () => menu2.SetActive(true), () => menu2.SetActive(false)),
         hitbox_3: new Hitbox(726, 308, 153, 86, null, kast, true, (o) => o.setState("lade_3"), (o) => o.setState("lade_0"), () => downloadPDF("assets/downloads/Knutsel 2.pdf", "Knutsel 2"),  () => menu3.SetActive(true), () => menu3.SetActive(false)),
-        hitbox_4: new Hitbox(726, 400, 150, 86, null, kast, true, (o) => o.setState("lade_4"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel4)),
+        hitbox_4: new Hitbox(726, 400, 150, 86, null, kast, true, (o) => o.setState("lade_4"), (o) => o.setState("lade_0"), () => setChaos(true)),
         hitbox_5: new Hitbox(721, 510, 220, 64, null, kast, true, (o) => o.setState("lade_5"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel3)),
         hitbox_6: new Hitbox(721, 580, 220, 64, null, kast, true, (o) => o.setState("lade_6"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel)),
         hitbox_7: new Hitbox(945, 510, 220, 64, null, kast, true, (o) => o.setState("lade_7"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel2)),
-        hitbox_8: new Hitbox(945, 580, 220, 64, null, kast, true, (o) => o.setState("lade_8"), (o) => o.setState("lade_0"), () => setChaos(true)),
+        hitbox_8: new Hitbox(945, 580, 220, 64, null, kast, true, (o) => o.setState("lade_8"), (o) => o.setState("lade_0"), () => tryMakeVisiblePuzzel(puzzel4)),
         hitbox_g: new Hitbox(888, 124, 280, 360, null, kast, true, (o) => o.setState("lade_g"), (o) => o.setState("lade_0")),
         hitbox_b: new Hitbox(1180, 460, 152, 242, null, boek, true, (o) => o.setOn(), (o) => o.setOff(), () => toggleBuyMenu()),
         hitbox_l: new Hitbox(530, 354, 80, 80, null, lamp, true, null, null, (o) => o.visible = !o.visible),
@@ -230,11 +232,11 @@ function createPuzzelStukken() {
     puzzel2.stukken.push(new PuzzelStuk(540, 1170, pzl2_12_img, .8, {x: 250, y: 160}, {x: 1393, y: 901}, 12, true, false));
 
     // PUZZEL 3
-    puzzel3.stukken.push(new PuzzelStuk(0, 0, pzl3_1_img, .8, {x: 125, y: 90}, {x: 524, y: 676}, 1, true, false));             // EERSTE RIJ
+    puzzel3.stukken.push(new PuzzelStuk(1100, 960, pzl3_1_img, .8, {x: 125, y: 90}, {x: 524, y: 676}, 1, true, false));             // EERSTE RIJ
     puzzel3.stukken.push(new PuzzelStuk(328, 830, pzl3_2_img, .8, {x: 230, y: 80}, {x: 699, y: 677}, 2, true, false));     
     puzzel3.stukken.push(new PuzzelStuk(1980, 630, pzl3_3_img, .8, {x: 300, y: 75}, {x: 1058, y: 672}, 3, true, true));
     puzzel3.stukken.push(new PuzzelStuk(1980, 630, pzl3_4_img, .8, {x: 220, y: 150}, {x: 431, y: 764}, 4, true, false));
-    puzzel3.stukken.push(new PuzzelStuk(1000, 10, pzl3_5_img, .8, {x: 200, y: 172}, {x: 750, y: 746}, 5, true, false));       // TWEEDE RIJ
+    puzzel3.stukken.push(new PuzzelStuk(1000, -40, pzl3_5_img, .8, {x: 200, y: 172}, {x: 750, y: 746}, 5, true, false));       // TWEEDE RIJ
     puzzel3.stukken.push(new PuzzelStuk(1400, 1100, pzl3_6_img, .8, {x: 180, y: 200}, {x: 1021, y: 747}, 6, true, true));
     puzzel3.stukken.push(new PuzzelStuk(1980, 630, pzl3_7_img, .8, {x: 150, y: 185}, {x: 1251, y: 767}, 7, true, false));
     puzzel3.stukken.push(new PuzzelStuk(1000, 1180, pzl3_8_img, .8, {x: 175, y: 135}, {x: 1408, y: 738}, 8, true, false));
@@ -244,7 +246,7 @@ function createPuzzelStukken() {
     puzzel3.stukken.push(new PuzzelStuk(540, 1170, pzl3_12_img, .8, {x: 300, y: 130}, {x: 1296, y: 920}, 12, true, false));
 
     // PUZZEL 4
-    puzzel4.stukken.push(new PuzzelStuk(0, 0, pzl4_1_img, .8, {x: 150, y: 75}, {x: 524, y: 676}, 1, true, false));             // EERSTE RIJ
+    puzzel4.stukken.push(new PuzzelStuk(1700, 1000, pzl4_1_img, .8, {x: 150, y: 75}, {x: 524, y: 676}, 1, true, false));             // EERSTE RIJ
     puzzel4.stukken.push(new PuzzelStuk(328, 830, pzl4_2_img, .8, {x: 220, y: 110}, {x: 419, y: 778}, 2, true, true));     
     puzzel4.stukken.push(new PuzzelStuk(1980, 630, pzl4_3_img, .8, {x: 280, y: 140}, {x: 308, y: 903}, 3, true, false));
     puzzel4.stukken.push(new PuzzelStuk(1980, 630, pzl4_4_img, .8, {x: 135, y: 160}, {x: 724, y: 679}, 4, true, false));
@@ -449,12 +451,16 @@ function preload() {
     wolk_2_img= loadImage('assets/images/wolken/2.png')
 
     boek_menu_img = loadImage('assets/images/boek/menu.png')
+    menu_sluit_knop_img = loadImage('assets/images/boek/sluit.png')
 
     kleur_menu_img = loadImage('assets/images/wolken/kleur.png')
     knutsel1_menu_img = loadImage('assets/images/wolken/knutsel1.png')
     knutsel2_menu_img = loadImage('assets/images/wolken/knutsel2.png')
 
     rotate_screen_img = loadImage('assets/images/telefoon_draai.png')
+
+    confetti_1_img = loadImage('assets/images/confetti/1.png')
+    confetti_2_img = loadImage('assets/images/confetti/2.png')
 }
 
 function setup() {
@@ -504,7 +510,7 @@ function setup() {
 
     buy_menu = new BuyMenu(1920/2-300, 1080/2-400, 600, 800, boek_menu_img);
     //opruim_text = new ColoredText(1041, 518, 143, 158, "Klik hier om op te ruimen", 20, (0,0,0), false)
-    knop = new OpruimKnop(200, 220, knop_a_img, knop_u_img, {x: .5, y: .5}, false, 1, false)
+    knop = new OpruimKnop(174, 220, knop_a_img, knop_u_img, {x: .7, y: .7}, false, 1, false)
 
     menu1 = new SimpleMenu(570, 90, 201, 136, "Klik om de kleurplaat te downloaden!", kleur_menu_img);
     menu2 = new SimpleMenu(786, 190, 201, 136, "Klik om knutselpagina 1 te downloaden!", knutsel1_menu_img);
@@ -528,20 +534,33 @@ function setup() {
 
     wolken = new AnimLayer([wolk_1_img, wolk_2_img], 120, 440, false, {x: .84, y: .84}, 20, 90, color(205, 255, 205, 205))
 
-    //clouds = new Clouds(60, 15, 0, false)
-
-    //createClouds();
+    confetti = [
+        new Confetti(960-250-73, 0, 146, 146),
+        new Confetti(960-150-73, 0, 116, 116),
+        new Confetti(960-50-73, 0, 136, 136),
+        new Confetti(960+50-73, 0, 146, 146),
+        new Confetti(960+150-73, 0, 126, 126),
+        new Confetti(960+250-73, 0, 126, 126)
+    ]
+   
 
     portrait_running = checkForPortrait();
 }
 
 function windowResized() {
     setScaling();
-    resizeCanvas(BASE_WIDTH * scaleFactor, BASE_HEIGHT*scaleFactor)
+    resizeCanvas(BASE_WIDTH * scaleFactor, BASE_HEIGHT*scaleFactor);
 }
 
 let drewThisPortrait = false;
 let portraitTimer = 0;
+
+function playConfetti() {
+    for (let c of confetti) {
+        c.reset()
+        c.active = true
+    }
+}
 
 function draw() {
     // Schalen per apparaat
@@ -558,19 +577,6 @@ function draw() {
     }
     scale(scaleFactor);
     console.log(scaleFactor)
-    
-    //if (portrait_running) {
-    //    speed = (windowWidth / windowHeight)/20
-    //    amplitude = BASE_WIDTH - windowWidth / scaleFactor;
-    //    let offset = (sin(t - Math.PI*.5) + 1) / 2 * amplitude;
-    //    t += speed
-    //    translate(-offset, 0);
-    //    portrait_running = checkForPortrait()
-    //    if (t >= (Math.PI*2)) { portrait_running = false}
-    //}
-
-    //not_allow_action = portrait_running
-    //background(245,168,0);
 
     achtergrond.draw()
 
@@ -622,14 +628,18 @@ function draw() {
 
     buy_menu.draw();
 
+    for (let confetti_stuk of confetti) {
+        confetti_stuk.draw()
+    }
+
     portrait_running = checkForPortrait();
 
     //console.log(windowWidth/windowHeight);
 
-    if (portrait_running && (portraitTimer < 20) && !drewThisPortrait) {
-        setScaling();
+    //if (portrait_running && (portraitTimer < 20) && !drewThisPortrait) {
+        //setScaling();
         //resizeCanvas(BASE_WIDTH * scaleFactor, BASE_HEIGHT*scaleFactor);
-    }
+    //}
 
     if (portrait_running && (portraitTimer < 120) && !drewThisPortrait) {
         portraitTimer++;
@@ -673,8 +683,17 @@ function draw() {
 function checkInteract(p) {
 
     if (buy_menu.active) {
-        if (buy_menu.isClicked(p.x, p.y)) {
+        if (buy_menu.isCloseClicked(p.x, p.y)) {
             buy_menu.active = false;
+            return;
+        }
+    }
+
+    if (buy_menu.active) {
+        if (!buy_menu.isClicked(p.x, p.y)) {
+            buy_menu.active = false;
+            return;
+        } else {
             return;
         }
     }
@@ -778,6 +797,9 @@ function checkInteract(p) {
 }
 
 function checkIndirectInteract(p) {
+    if (buy_menu.active) {
+        return
+    }
     if (kledingStukDragged) {
         canvas.elt.style.touchAction = "none";
         kledingStukDragged.state = "drag";
@@ -898,7 +920,10 @@ function checkRelease(p) {
                     if (pzl.boxes[name].meta.id !== puzzelDragged.id) { continue }
                     puzzelDragged.lock()
                     pzl.pieces_put += 1
-                    if (pzl.pieces_put >= pzl.pieces_needed) { pzl.completed = true}
+                    if (pzl.pieces_put >= pzl.pieces_needed) {
+                        pzl.completed = true
+                        playConfetti()
+                    }
                     break;
                 }
             }
@@ -923,25 +948,6 @@ function touchStarted() {
 
     if (succes) { return false }
 }
-
-/*
-function touchMoved() {
-    let t0 = getScaledTouches()[0];
-    if (start_touch) {
-        // move world by touch delta
-        let dx = t0.x - start_touch.x;
-        let dy = t0.y - start_touch.y;
-
-        scroll_x += dx;
-        scroll_y += dy;
-
-        scroll_x = constrain(scroll_x, -(BASE_WIDTH - (windowWidth/scaleFactor)), 0);
-        scroll_y = constrain(scroll_y, -(BASE_HEIGHT - (windowHeight/scaleFactor)), 0);
-
-        start_touch.set(t0.x, t0.y);
-    }
-}
-*/
 
 function touchEnded() {
     //if (not_allow_action) { return }
@@ -1014,6 +1020,51 @@ class Layer {
     }
 }
 
+class Confetti {
+    constructor(x, y, width = 64, height = 64) {
+        this.x = x;
+        this.y = y;
+        this.base_x = x; // Onthoud de basislijn (omdat this.x gaat 'dwarrelen'.)
+        this.w = width;
+        this.h = height;
+        this.images = [confetti_1_img, confetti_2_img];
+        this.frame_length = 30;
+        this.frame = Math.floor(Math.random()*this.images.length);
+        this.frame_counter = Math.floor(Math.random()*this.frame_length);
+        this.max_frames = this.images.length;
+        this.gravity = 2.5 + Math.random()*4; // Hoeveelheid naar beneden per global frame update.
+        this.active = false;
+        this.amp = 30;
+        this.random_offset = Math.random() * this.amp;
+    }
+
+    draw() {
+        if (!this.active) { return }
+        image(this.images[this.frame], this.x, this.y, this.w, this.h);
+
+        // frame-nummer bijwerken
+        this.frame_counter++;
+        if (this.frame_counter >= this.frame_length) {
+            this.frame++;
+            this.frame_counter = 0;
+        }
+        if (this.frame >= this.max_frames) {
+            this.frame = 0;
+        }
+
+
+
+        this.y += this.gravity;
+        this.x = this.base_x + Math.sin(this.y/100 + this.random_offset) * this.amp
+        if (this.y > BASE_HEIGHT) { this.active = false }
+    }
+
+    reset() {
+        this.random_offset = Math.random() * this.amp;
+        this.y = -this.h
+    }
+}
+
 class AnimLayer {
     constructor(images, x, y, visible, scaling, cycle_length, fade_out_length, color_tint) {
         this.x = x;
@@ -1066,76 +1117,82 @@ class BuyMenu {
         this.h = h;
         this.img = img;
         this.active = false;
+        this.sluit_x = this.x+this.w-90;
+        this.sluit_y = this.y+16;
+        this.sluit_w = 64;
+        this.sluit_h = 64;
     }
 
     draw() {
         if (!this.active) { return }
         if (this.img) {
             image(this.img, this.x, this.y, this.w, this.h)
+            // tekst voor sluiten
+            image(menu_sluit_knop_img, this.sluit_x, this.sluit_y, this.sluit_w, this.sluit_h)
         } else {
             strokeWeight(5)
             stroke(255)
             fill(255, 235)
             rectMode(CORNER)
             rect(this.x, this.y, this.w, this.h)
-             strokeWeight(0)
-        textFont(comic_font)
-        textAlign(CENTER, CENTER);
-        rectMode(CENTER)
-        textWrap(WORD);
+            strokeWeight(0)
+            textFont(comic_font)
+            textAlign(CENTER, CENTER);
+            rectMode(CENTER)
+            textWrap(WORD);
 
-        // TEKST
-        fill('red')
-        textSize(28)
-        text("De Avonturen van Varkez en Kozijn", this.x+this.w/2, this.y+20, this.w-20);
+            // TEKST
+            fill('red')
+            textSize(28)
+            text("De Avonturen van Varkez en Kozijn", this.x+this.w/2, this.y+20, this.w-20);
 
-        fill('black')
-        textSize(20)
-        text("door Mari Boer", this.x+this.w/2, this.y+50, this.w-20);
+            fill('black')
+            textSize(20)
+            text("door Mari Boer", this.x+this.w/2, this.y+50, this.w-20);
+            
+            textAlign(LEFT, CENTER);
+            fill('red')
+            textSize(18)
+            text("Het boek bevat:", this.x+this.w/2, this.y+94, this.w-20);
+
+            fill(0,112,192)
+            text("- 64 bladzijden beeldverhaal (stripverhaal)", this.x+this.w/2, this.y+114, this.w-20);
+            text("- 1 ganzenbord", this.x+this.w/2, this.y+134, this.w-20);
+            text("- 2 zoekpagina's", this.x+this.w/2, this.y+154, this.w-20);
+            text("- 2 pagina's met schetsen", this.x+this.w/2, this.y+174, this.w-20);
+            text("- 2 knutselpagina's (los toegevoegd)", this.x+this.w/2, this.y+194, this.w-20);
+            text("- 1 kleurplaat (los toegevoegd)", this.x+this.w/2, this.y+214, this.w-20);
+
+
+            fill('red')
+            text("Bestellen:", this.x+this.w/2, this.y+254, this.w-20);
+
+            fill('black')
+            text("Het boek kost 22,50 euro plus verzendkosten.", this.x+this.w/2, this.y+274, this.w-20);
+            text("(binnen Zwolle geen verzendkosten).", this.x+this.w/2, this.y+294, this.w-20);
+            text("Te bestellen door je naam en adres te mailen naar: info@mariboer.nl.", this.x+this.w/2, this.y+314, this.w-20);
+
+            fill('red')
+            text("Het verhaal:", this.x+this.w/2, this.y+354, this.w-20);
+
+            fill('black')
+            text("- Varkez en kozijn komen elkaar bij toeval tegen.", this.x+this.w/2, this.y+374, this.w-20);
+            text("  De pyjama van Varkez wordt aangezien voor een boevenpak.", this.x+this.w/2, this.y+394, this.w-20);
+            text("  Varkez wil zijn onschuld bewijzen en hij wil kozijn helpen.", this.x+this.w/2, this.y+414, this.w-20);
+            text("- Tijdens hun avonturen mislukt vrijwel alles, maar komt toch alles goed.", this.x+this.w/2, this.y+434, this.w-20);
+            text("- over vriendschap en 'sorry' zeggen.", this.x+this.w/2, this.y+454, this.w-20);
         
-        textAlign(LEFT, CENTER);
-        fill('red')
-        textSize(18)
-        text("Het boek bevat:", this.x+this.w/2, this.y+94, this.w-20);
+            fill('red')
+            text("Hoofpersonages:", this.x+this.w/2, this.y+494, this.w-20);
 
-        fill(0,112,192)
-        text("- 64 bladzijden beeldverhaal (stripverhaal)", this.x+this.w/2, this.y+114, this.w-20);
-        text("- 1 ganzenbord", this.x+this.w/2, this.y+134, this.w-20);
-        text("- 2 zoekpagina's", this.x+this.w/2, this.y+154, this.w-20);
-        text("- 2 pagina's met schetsen", this.x+this.w/2, this.y+174, this.w-20);
-        text("- 2 knutselpagina's (los toegevoegd)", this.x+this.w/2, this.y+194, this.w-20);
-        text("- 1 kleurplaat (los toegevoegd)", this.x+this.w/2, this.y+214, this.w-20);
-
-
-        fill('red')
-        text("Bestellen:", this.x+this.w/2, this.y+254, this.w-20);
-
-        fill('black')
-        text("Het boek kost 22,50 euro plus verzendkosten.", this.x+this.w/2, this.y+274, this.w-20);
-        text("(binnen Zwolle geen verzendkosten).", this.x+this.w/2, this.y+294, this.w-20);
-        text("Te bestellen door je naam en adres te mailen naar: info@mariboer.nl.", this.x+this.w/2, this.y+314, this.w-20);
-
-        fill('red')
-        text("Het verhaal:", this.x+this.w/2, this.y+354, this.w-20);
-
-        fill('black')
-        text("- Varkez en kozijn komen elkaar bij toeval tegen.", this.x+this.w/2, this.y+374, this.w-20);
-        text("  De pyjama van Varkez wordt aangezien voor een boevenpak.", this.x+this.w/2, this.y+394, this.w-20);
-        text("  Varkez wil zijn onschuld bewijzen en hij wil kozijn helpen.", this.x+this.w/2, this.y+414, this.w-20);
-        text("- Tijdens hun avonturen mislukt vrijwel alles, maar komt toch alles goed.", this.x+this.w/2, this.y+434, this.w-20);
-        text("- over vriendschap en 'sorry' zeggen.", this.x+this.w/2, this.y+454, this.w-20);
-       
-        fill('red')
-        text("Hoofpersonages:", this.x+this.w/2, this.y+494, this.w-20);
-
-        fill('black')
-        text("Varkez heeft een klein hartje, een tankstation en weinig inkomsten. ", this.x+this.w/2, this.y+514, this.w-20);
-        text("Kozijn is een uit de gevangenis ontsnapte kruimeldief en", this.x+this.w/2, this.y+534, this.w-20);
-        text("een beetje een opschepper.", this.x+this.w/2, this.y+554, this.w-20);
-        
-        textAlign(CENTER, CENTER);
-        fill('grey')
-        text("(Klik om te sluiten.)", this.x+this.w/2, this.y+this.h-40, this.w-20);
+            fill('black')
+            text("Varkez heeft een klein hartje, een tankstation en weinig inkomsten. ", this.x+this.w/2, this.y+514, this.w-20);
+            text("Kozijn is een uit de gevangenis ontsnapte kruimeldief en", this.x+this.w/2, this.y+534, this.w-20);
+            text("een beetje een opschepper.", this.x+this.w/2, this.y+554, this.w-20);
+            
+            textAlign(CENTER, CENTER);
+            fill('grey')
+            text("(Klik om te sluiten.)", this.x+this.w/2, this.y+this.h-40, this.w-20);
         }
     }
 
@@ -1143,6 +1200,15 @@ class BuyMenu {
         if (!this.active) { return }
         if (mx >= this.x && mx <= this.x + this.w &&
             my >= this.y && my <= this.y + this.h) {
+            return true
+        } else {
+            return false
+        }
+    }
+    isCloseClicked(mx, my) {
+        if (!this.active) { return }
+        if (mx >= this.sluit_x && mx <= this.sluit_x + this.sluit_w &&
+            my >= this.sluit_y && my <= this.sluit_y + this.sluit_h) {
             return true
         } else {
             return false
